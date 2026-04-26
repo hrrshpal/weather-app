@@ -28,44 +28,57 @@ searchBtn.addEventListener("click", ()=>{
 async function fetchWeather(location){
     if(location === undefined || location === null || location === ""){
         city.innerHTML = "Invalid Location"
+        return;
     }
-    let response = await fetch(url + location + "?key=98FMLYRCNZZAMM3N7D737YQVY");
-    let result = await response.json()
+    try{
+        let response = await fetch(url + location + "?key=98FMLYRCNZZAMM3N7D737YQVY");
+        if(!response.ok){
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        let result = await response.json();
+        
+        let cityName = result.address.toUpperCase()
+        city.innerHTML = cityName
 
+        let lat = "Latitude: " + result.latitude + " || "
+        latitude.innerHTML = lat;
+        let long = "Longitude: " + result.longitude
+        longitude.innerHTML = long
 
-    let cityName = result.address.toUpperCase()
-    city.innerHTML = cityName
+        let epoch = result.currentConditions.datetimeEpoch
+        let date = new Date(epoch * 1000)
+        let formatted = date.toLocaleString('en-IN', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        timeDate.innerHTML = formatted
 
-    let lat = "Latitude: " + result.latitude + " || "
-    latitude.innerHTML = lat;
-    let long = "Longitude: " + result.longitude
-    longitude.innerHTML = long
+        let temperatureInF = result.currentConditions.temp
+        let temperatureInC = ((temperatureInF - 32) * (5/9)).toFixed(2)
+        if(temperatureInC <= 18){
+            body.style.background = "url('./assets/cool-new.png')"
+            body.style.backgroundSize = "cover";
+            body.style.backgroundPosition = "center";
+            body.style.backgroundRepeat = "no-repeat";
+        } else if(temperatureInC > 18 && temperatureInC <= 30){
+            body.style.background = "url('./assets/warm-new.png')"
+            body.style.backgroundSize = "cover";
+            body.style.backgroundPosition = "center";
+            body.style.backgroundRepeat = "no-repeat";
+        } else{
+            body.style.background = "url('./assets/hot-new.png')"
+            body.style.backgroundSize = "cover";
+            body.style.backgroundPosition = "center";
+        }
+        tempC.innerHTML = temperatureInC + "&deg;C"
+        tempF.innerHTML = temperatureInF + "&deg;F"
 
-    let epoch = result.currentConditions.datetimeEpoch
-    let date = new Date(epoch * 1000)
-    let formatted = date.toLocaleString('en-IN', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-     });
-    timeDate.innerHTML = formatted
-
-    let temperatureInF = result.currentConditions.temp
-    let temperatureInC = ((temperatureInF - 32) * (5/9)).toFixed(2)
-    if(temperatureInC <= 18){
-        body.style.background = "url('./assets/cool-new.png')"
-        body.style.backgroundSize = "100%";
-    } else if(temperatureInC > 18 && temperatureInC <= 30){
-        body.style.background = "url('./assets/warm-new.png')"
-        body.style.backgroundSize = "100%";
-    } else{
-        body.style.background = "url('./assets/hot-new.png')"
-        body.style.backgroundSize = "100%";
+        description.innerHTML = result.description
+    } catch (error) {
+        city.innerHTML = "Error: Check console";
+        console.log(error)
     }
-    tempC.innerHTML = temperatureInC + "&deg;C"
-    tempF.innerHTML = temperatureInF + "&deg;F"
-
-    description.innerHTML = result.description
 }
