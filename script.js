@@ -26,6 +26,9 @@ searchBtn.addEventListener("click", ()=>{
 })
 
 async function fetchWeather(location){
+    if(location === undefined || location === null || location === ""){
+        city.innerHTML = "Invalid Location"
+    }
     let response = await fetch(url + location + "?key=98FMLYRCNZZAMM3N7D737YQVY");
     let result = await response.json()
 
