@@ -1,5 +1,6 @@
 const url = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/"
 
+
 const inputField = document.querySelector(".input-field")
 const searchBtn = document.querySelector(".search-btn")
 const city = document.querySelector(".city")
@@ -9,9 +10,18 @@ const timeDate = document.querySelector(".time-and-date")
 const tempC = document.querySelector(".temperatureC")
 const tempF = document.querySelector(".temperatureF")
 const description = document.querySelector(".description")
-
+const tempArea = document.querySelector('.location-temperature')
+const body = document.querySelector("body")
 
 searchBtn.addEventListener("click", ()=>{
+    tempArea.style.backgroundColor = "rgba(0,0,0,0.5)"
+    city.innerHTML = "Loading..."
+    latitude.innerHTML = ""
+    longitude.innerHTML = ""
+    timeDate.innerHTML = ""
+    tempC.innerHTML = ""
+    tempF.innerHTML = ""
+    description.innerHTML = ""
     fetchWeather(inputField.value)
 })
 
@@ -19,11 +29,14 @@ async function fetchWeather(location){
     let response = await fetch(url + location + "?key=98FMLYRCNZZAMM3N7D737YQVY");
     let result = await response.json()
 
+
     let cityName = result.address.toUpperCase()
     city.innerHTML = cityName
 
-    latitude.innerHTML = result.latitude
-    longitude.innerHTML = result.longitude
+    let lat = "Latitude: " + result.latitude + " || "
+    latitude.innerHTML = lat;
+    let long = "Longitude: " + result.longitude
+    longitude.innerHTML = long
 
     let epoch = result.currentConditions.datetimeEpoch
     let date = new Date(epoch * 1000)
@@ -38,12 +51,18 @@ async function fetchWeather(location){
 
     let temperatureInF = result.currentConditions.temp
     let temperatureInC = ((temperatureInF - 32) * (5/9)).toFixed(2)
+    if(temperatureInC <= 18){
+        body.style.background = "url('./assets/cool-new.png')"
+        body.style.backgroundSize = "100%";
+    } else if(temperatureInC > 18 && temperatureInC <= 30){
+        body.style.background = "url('./assets/warm-new.png')"
+        body.style.backgroundSize = "100%";
+    } else{
+        body.style.background = "url('./assets/hot-new.png')"
+        body.style.backgroundSize = "100%";
+    }
     tempC.innerHTML = temperatureInC + "&deg;C"
     tempF.innerHTML = temperatureInF + "&deg;F"
-    
+
     description.innerHTML = result.description
 }
-
-
-
-
